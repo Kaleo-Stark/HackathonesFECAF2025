@@ -9,6 +9,10 @@ from dev_time_um.analisador_de_texto import AnalisadorDeTexto
 from dev_time_um.materia_ava_2 import ChatMateria2
 from dev_time_dois.bot_atendimento import BotAtendimento
 from dev_time_dois.resumidor_conteudo import ResumidorConteudo
+from flask import Flask
+
+app = Flask(__name__)
+
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -147,5 +151,7 @@ def main():
     except KeyboardInterrupt:
         print("\n👋 Encerrando aplicação...")
 
-if __name__ == "__main__":
+if __name__ == "__main__":     
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
     main()
