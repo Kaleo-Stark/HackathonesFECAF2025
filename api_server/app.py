@@ -56,12 +56,25 @@ def ava_conteudo():
 
 @app.route('/chatMateria1', methods=['POST'])
 def materia1():
+    data = request.json
+    pergunta = data.get('prompt')
+    
+    # Recebe o histórico anterior. Se não vier, começa com uma lista vazia.
+    historico_anterior = data.get('historico', [])
+
+    if not pergunta:
+        return jsonify({'error': 'O campo "prompt" com a pergunta é obrigatório.'}), 400
+
     chat_materia = ChatMateria1(gemini_client)
-    data = request.json # Recebe o JSON do corpo da requisição
-    promptJSON = data.get('prompt') # Pega um valor do JSON
-    promptGemini = "Analisa o qe veio aqui: " + promptJSON
-    response = chat_materia.conversar("Tubarão")
-    return jsonify({'response': response}), 200
+    
+    # A função agora recebe a pergunta e o histórico
+    resposta, historico_novo = chat_materia.conversar(pergunta, historico_anterior)
+    
+    # Retornamos a resposta e também o novo histórico para o cliente
+    return jsonify({
+        'response': resposta,
+        'historico': historico_novo 
+    }), 200
 
 @app.route('/chatMateria2', methods=['POST'])
 def materia2():
@@ -71,6 +84,31 @@ def materia2():
     promptGemini = "Analisa o qe veio aqui: " + promptJSON
     response = chat_materia.conversar("carro")
     return jsonify({'response': response}), 200
+
+#============================================= NOVOS ENDPOINTS - TUTORIA EDUCACIONAL =============================================
+
+@app.route('/chat', methods=['POST'])
+def chat_tutoria():
+    """Endpoint unificado para tutoria educacional de POO"""
+    try:
+        data = request.json
+        prompt = data.get('prompt')
+        
+        if not prompt:
+            return jsonify({'error': 'Parâmetro "prompt" é obrigatório'}), 400
+        
+        tutoria = ChatMateria2(gemini_client)
+        
+        # Usar o método conversar que já existe na classe
+        resultado = tutoria.conversar(prompt)
+        
+        return jsonify({
+            'prompt': prompt,
+            'resultado': resultado
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 ####################(Não mexer abaixo)############################
 @app.route('/generate-text', methods=['POST'])
