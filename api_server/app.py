@@ -2,6 +2,11 @@ import os
 from flask import Flask, request, jsonify
 import google.generativeai as genai
 from dotenv import load_dotenv
+from dev_time_um.estudo_caso import EstudoCaso
+from dev_time_um.conteudo_ava import ConteudoAva
+from dev_time_um.materia_ava_1 import ChatMateria1
+from dev_time_um.materia_ava_2 import ChatMateria2
+from api_wrapper.gemini_api_client import GeminiApiClient
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -12,14 +17,51 @@ app = Flask(__name__)
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-@app.route('/health', methods=['GET'])
-def health_check():
-    """Endpoint para verificar se a API está funcionando"""
-    return jsonify({
-        'status': 'healthy',
-        'message': 'API Gemini está funcionando!'
-    })
+# Instanciar cliente da API
+host = os.getenv('FLASK_HOST', '127.0.0.1')
+port = os.getenv('FLASK_PORT', '5000')
+base_url = f"http://{host}:{port}"
+gemini_client = GeminiApiClient(base_url)
 
+#=============================================(Daqui para baixo)===========================================)
+
+@app.route('/analisarEstudoCaso', methods=['POST'])
+def estudo_caso():
+    estudo_caso = EstudoCaso(gemini_client)
+    data = request.json # Recebe o JSON do corpo da requisição
+    promptJSON = data.get('prompt') # Pega um valor do JSON
+    promptGemini = "Analisa o qe veio aqui: " + promptJSON
+    analise = estudo_caso.analisar("estudo de caso")
+    return jsonify({'analise': analise}), 200
+
+@app.route('/melhorarConteudoAva', methods=['POST'])
+def ava_conteudo():
+    conteudo_ava = ConteudoAva(gemini_client)
+    data = request.json # Recebe o JSON do corpo da requisição
+    promptJSON = data.get('prompt') # Pega um valor do JSON
+    promptGemini = "Analisa o qe veio aqui: " + promptJSON
+    analise = conteudo_ava.analisar("sobre ava")
+    return jsonify({'analise': analise}), 200
+
+@app.route('/chatMateria1', methods=['POST'])
+def materia1():
+    chat_materia = ChatMateria1(gemini_client)
+    data = request.json # Recebe o JSON do corpo da requisição
+    promptJSON = data.get('prompt') # Pega um valor do JSON
+    promptGemini = "Analisa o qe veio aqui: " + promptJSON
+    response = chat_materia.conversar("Tubarão")
+    return jsonify({'response': response}), 200
+
+@app.route('/chatMateria2', methods=['POST'])
+def materia2():
+    chat_materia = ChatMateria2(gemini_client)
+    data = request.json # Recebe o JSON do corpo da requisição
+    promptJSON = data.get('prompt') # Pega um valor do JSON
+    promptGemini = "Analisa o qe veio aqui: " + promptJSON
+    response = chat_materia.conversar("carro")
+    return jsonify({'response': response}), 200
+
+####################(Não mexer abaixo)############################
 @app.route('/generate-text', methods=['POST'])
 def generate_text():
     """Endpoint para geração de texto"""
@@ -41,39 +83,40 @@ def generate_text():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    """Endpoint para interação de chat"""
-    try:
-        data = request.json
-        message = data.get('message')
-        history = data.get('history', [])
-        
-        if not message:
-            return jsonify({'error': 'Message é obrigatória'}), 400
-        
-        # Iniciar chat com histórico
-        chat_session = model.start_chat(history=history)
-        
-        # Enviar mensagem
-        response = chat_session.send_message(message)
-        
-        # Atualizar histórico
-        updated_history = chat_session.history
-        
-        return jsonify({
-            'response': response.text,
-            'message': message,
-            'updated_history': [
-                {
-                    'role': msg.role,
-                    'parts': [part.text for part in msg.parts]
-                } for msg in updated_history
-            ]
-        })
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#@app.route('/chat', methods=['POST'])
+#def chat():
+#    """Endpoint para interação de chat"""
+#    try:
+#        data = request.json
+#        message = data.get('message')
+#        history = data.get('history', [])
+#        
+#        if not message:
+#            return jsonify({'error': 'Message é obrigatória'}), 400
+#        
+#        # Iniciar chat com histórico
+#        chat_session = model.start_chat(history=history)
+#        
+#        # Enviar mensagem
+#        response = chat_session.send_message(message)
+#        
+#        # Atualizar histórico
+#        updated_history = chat_session.history
+#        
+#        return jsonify({
+#            'response': response.text,
+#            'message': message,
+#            'updated_history': [
+#                {
+#                    'role': msg.role,
+#                    'parts': [part.text for part in msg.parts]
+#                } for msg in updated_history
+#            ]
+#        })
+#    
+#    except Exception as e:
+#        return jsonify({'error': str(e)}), 500
+#"""
 
 if __name__ == '__main__':
     host = os.getenv('FLASK_HOST', '127.0.0.1')
