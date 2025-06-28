@@ -25,6 +25,8 @@ gemini_client = GeminiApiClient(base_url)
 
 #=============================================(Daqui para baixo)===========================================)
 
+
+
 @app.route('/analisarEstudoCaso', methods=['POST'])
 def estudo_caso():
     estudo_caso = EstudoCaso(gemini_client)
@@ -43,14 +45,28 @@ def ava_conteudo():
     analise = conteudo_ava.analisar("sobre ava")
     return jsonify({'analise': analise}), 200
 
+
 @app.route('/chatMateria1', methods=['POST'])
 def materia1():
+    data = request.json
+    pergunta = data.get('prompt')
+    
+    # Recebe o histórico anterior. Se não vier, começa com uma lista vazia.
+    historico_anterior = data.get('historico', [])
+
+    if not pergunta:
+        return jsonify({'error': 'O campo "prompt" com a pergunta é obrigatório.'}), 400
+
     chat_materia = ChatMateria1(gemini_client)
-    data = request.json # Recebe o JSON do corpo da requisição
-    promptJSON = data.get('prompt') # Pega um valor do JSON
-    promptGemini = "Analisa o qe veio aqui: " + promptJSON
-    response = chat_materia.conversar("Tubarão")
-    return jsonify({'response': response}), 200
+    
+    # A função agora recebe a pergunta e o histórico
+    resposta, historico_novo = chat_materia.conversar(pergunta, historico_anterior)
+    
+    # Retornamos a resposta e também o novo histórico para o cliente
+    return jsonify({
+        'response': resposta,
+        'historico': historico_novo 
+    }), 200
 
 @app.route('/chatMateria2', methods=['POST'])
 def materia2():
