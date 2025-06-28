@@ -25,26 +25,34 @@ gemini_client = GeminiApiClient(base_url)
 
 #=============================================(Daqui para baixo)===========================================)
 
-
-
 @app.route('/analisarEstudoCaso', methods=['POST'])
 def estudo_caso():
     estudo_caso = EstudoCaso(gemini_client)
-    data = request.json # Recebe o JSON do corpo da requisição
-    promptJSON = data.get('prompt') # Pega um valor do JSON
-    promptGemini = "Analisa o qe veio aqui: " + promptJSON
-    analise = estudo_caso.analisar("estudo de caso")
-    return jsonify({'analise': analise}), 200
+    data = request.json
+
+    prompt_professor = data.get('prompt')  # Ex: "Analise se o estudo está dentro do tema de sustentabilidade urbana"
+    estudo_aluno = data.get('estudo')  # Ex: "O aluno escreveu que sustentabilidade..."
+
+    # Verificação básica
+    if not prompt_professor or not estudo_aluno:
+        return jsonify({'erro': 'Prompt do professor e estudo de caso do aluno são obrigatórios.'}), 400
+
+    # Chama o analisador passando os dois parâmetros certos
+    analise = estudo_caso.analisar(prompt_professor, estudo_aluno)
+    return jsonify(analise), 200
 
 @app.route('/melhorarConteudoAva', methods=['POST'])
 def ava_conteudo():
     conteudo_ava = ConteudoAva(gemini_client)
-    data = request.json # Recebe o JSON do corpo da requisição
-    promptJSON = data.get('prompt') # Pega um valor do JSON
-    promptGemini = "Analisa o qe veio aqui: " + promptJSON
-    analise = conteudo_ava.analisar("sobre ava")
-    return jsonify({'analise': analise}), 200
+    data = request.json
+    prompt_professor = data.get('prompt')  # Instrução personalizada
+    conteudo_slides = data.get('conteudo')  # Texto do slide
 
+    if not prompt_professor or not conteudo_slides:
+        return jsonify({'erro': 'Dados incompletos. Envie o prompt e o conteúdo dos slides.'}), 400
+    
+    analise = conteudo_ava.analisar(prompt_professor, conteudo_slides)
+    return jsonify({'analise': analise}), 200
 
 @app.route('/chatMateria1', methods=['POST'])
 def materia1():
