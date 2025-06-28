@@ -37,10 +37,14 @@ def estudo_caso():
 @app.route('/melhorarConteudoAva', methods=['POST'])
 def ava_conteudo():
     conteudo_ava = ConteudoAva(gemini_client)
-    data = request.json # Recebe o JSON do corpo da requisição
-    promptJSON = data.get('prompt') # Pega um valor do JSON
-    promptGemini = "Analisa o qe veio aqui: " + promptJSON
-    analise = conteudo_ava.analisar("sobre ava")
+    data = request.json
+    prompt_professor = data.get('prompt')  # Instrução personalizada
+    conteudo_slides = data.get('conteudo')  # Texto do slide
+
+    if not prompt_professor or not conteudo_slides:
+        return jsonify({'erro': 'Dados incompletos. Envie o prompt e o conteúdo dos slides.'}), 400
+    
+    analise = conteudo_ava.analisar(prompt_professor, conteudo_slides)
     return jsonify({'analise': analise}), 200
 
 @app.route('/chatMateria1', methods=['POST'])
