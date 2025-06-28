@@ -18,11 +18,11 @@ genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # Instanciar cliente da API
-host = os.getenv('FLASK_HOST', '127.0.0.1')
-port = os.getenv('FLASK_PORT', '5000')
-base_url = f"http://{host}:{port}"
-gemini_client = GeminiApiClient(base_url)
-
+#host = os.getenv('FLASK_HOST', '127.0.0.1')
+#port = os.getenv('FLASK_PORT', '5000')
+#base_url = f"http://{host}:{port}"
+#gemini_client = GeminiApiClient(base_url)
+gemini_client = GeminiApiClient(os.getenv('GEMINI_API_KEY'))
 #=============================================(Daqui para baixo)===========================================)
 
 @app.route('/analisarEstudoCaso', methods=['POST'])
@@ -168,8 +168,8 @@ def generate_text():
 #"""
 
 if __name__ == '__main__':
-    host = os.getenv('FLASK_HOST', '127.0.0.1')
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
     port = int(os.getenv('FLASK_PORT', 5000))
     
     print(f"🚀 Iniciando servidor Flask em {host}:{port}")
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port, debug=True)
