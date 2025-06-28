@@ -8,21 +8,22 @@ class ChatMateria2:
     
     def conversar(self, prompt):
         # Trocar ostextos para o que a função deve fazer#
-        """Gera ideias sobre um tema específico"""
+        """Estabelece e explica de forma concisa a matéria fornecida"""
         prompt = f"""
-        Gere ideias criativas e inovadoras sobre: {prompt}
+        Estabeleça e explique de forma concisa a matéria: {prompt}
         
-        Para cada ideia, forneça:
-        - Nome/título da ideia
-        - Descrição breve
-        - Potencial de impacto
+        Forneça:
+        - Definição clara e objetiva da matéria
+        - Principais conceitos fundamentais
+        - Aplicações práticas ou importância
+        - Resumo em 2-3 pontos principais
         
-        Formato: Lista numerada, seja criativo e prático.
+        Seja direto, preciso e didático na explicação.
         """
         ###################### Aqui não mexer ##########################
         try:
             resposta = self.gemini_client.generate_text(prompt)
             return resposta
         except Exception as e:
-            return f"Erro ao gerar ideias: {e}"
+            return f"Erro ao explicar matéria: {e}"
         ################################################################

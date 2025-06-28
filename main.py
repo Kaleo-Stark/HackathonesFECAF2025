@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from api_wrapper.gemini_api_client import GeminiApiClient
 from dev_time_um.gerador_de_ideias import GeradorDeIdeias
 from dev_time_um.analisador_de_texto import AnalisadorDeTexto
+from dev_time_um.materia_ava_2 import ChatMateria2
 from dev_time_dois.bot_atendimento import BotAtendimento
 from dev_time_dois.resumidor_conteudo import ResumidorConteudo
 
@@ -72,6 +73,57 @@ def main():
         """)
         print(f"📝 Resumo: {resumo}")
         
+        print("\n🔥 DEMONSTRAÇÃO - TUTORIA EDUCACIONAL (POO)")
+        print("-" * 50)
+        
+        # Tutoria Educacional - ChatMateria2
+        tutoria = ChatMateria2(gemini_client)
+        
+        # Testar com prompt direto
+        explicacao = tutoria.conversar("Programação Orientada a Objetos")
+        print(f"📚 Explicação POO: {explicacao[:150]}...")
+        
+        print("\n🔥 DEMONSTRAÇÃO - ENDPOINT UNIFICADO /chat")
+        print("-" * 50)
+        
+        # Testar o endpoint unificado /chat
+        import requests
+        
+        # 1. Pergunta sobre conceito
+        response = requests.post(f"{base_url}/chat", json={
+            "prompt": "Não entendi a parte do polimorfismo"
+        })
+        if response.status_code == 200:
+            print(f"📚 /chat: {response.json()['resultado'][:100]}...")
+        
+        # 2. Pergunta sobre exercício
+        response = requests.post(f"{base_url}/chat", json={
+            "prompt": "Como crio uma classe Animal em Java?"
+        })
+        if response.status_code == 200:
+            print(f"🧮 /chat: {response.json()['resultado'][:100]}...")
+        
+        # 3. Pergunta sobre conceito
+        response = requests.post(f"{base_url}/chat", json={
+            "prompt": "Explique herança em POO"
+        })
+        if response.status_code == 200:
+            print(f"❓ /chat: {response.json()['resultado'][:100]}...")
+        
+        # 4. Pergunta sobre dúvida
+        response = requests.post(f"{base_url}/chat", json={
+            "prompt": "Qual a diferença entre classe e objeto?"
+        })
+        if response.status_code == 200:
+            print(f"🤔 /chat: {response.json()['resultado'][:100]}...")
+        
+        # 5. Pergunta sobre planejamento
+        response = requests.post(f"{base_url}/chat", json={
+            "prompt": "Quero aprender POO, como devo estudar?"
+        })
+        if response.status_code == 200:
+            print(f"📅 /chat: {response.json()['resultado'][:100]}...")
+        
     except Exception as e:
         print(f"❌ Erro na demonstração: {e}")
         print("💡 Certifique-se de que sua GEMINI_API_KEY está configurada corretamente no .env")
@@ -80,7 +132,12 @@ def main():
     print("✨ Demonstração concluída! O servidor continua rodando...")
     print("🌐 Acesse os endpoints em:")
     print(f"   • {base_url}/generate-text")
-    print(f"   • {base_url}/chat")
+    print(f"   • {base_url}/chat (endpoint unificado para tutoria POO)")
+    print("")
+    print("📚 Como usar o /chat:")
+    print("   • Envie um JSON com apenas o campo 'prompt'")
+    print("   • Exemplo: {\"prompt\": \"Não entendi polimorfismo\"}")
+    print("   • A IA responderá automaticamente baseada no contexto")
     print("🔄 Pressione Ctrl+C para parar")
     
     # Manter o programa rodando

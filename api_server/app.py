@@ -61,6 +61,31 @@ def materia2():
     response = chat_materia.conversar("carro")
     return jsonify({'response': response}), 200
 
+#============================================= NOVOS ENDPOINTS - TUTORIA EDUCACIONAL =============================================
+
+@app.route('/chat', methods=['POST'])
+def chat_tutoria():
+    """Endpoint unificado para tutoria educacional de POO"""
+    try:
+        data = request.json
+        prompt = data.get('prompt')
+        
+        if not prompt:
+            return jsonify({'error': 'Parâmetro "prompt" é obrigatório'}), 400
+        
+        tutoria = ChatMateria2(gemini_client)
+        
+        # Usar o método conversar que já existe na classe
+        resultado = tutoria.conversar(prompt)
+        
+        return jsonify({
+            'prompt': prompt,
+            'resultado': resultado
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 ####################(Não mexer abaixo)############################
 @app.route('/generate-text', methods=['POST'])
 def generate_text():
